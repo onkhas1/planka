@@ -103,14 +103,14 @@
     };
     stage.addEventListener("pointerdown", (e) => {
       // нажатие на бренд — это переход на его страницу, планку не трогаем
-      if (e.target.closest(".jumper")) { stopAuto(); return; }
+      if (e.target.closest(".jumper")) { stopAuto(); moved = false; return; }
       stopAuto(); drag = true; moved = false; stage.setPointerCapture(e.pointerId); fromPointer(e); e.preventDefault();
     });
     stage.addEventListener("pointermove", (e) => { if (drag) { moved = true; fromPointer(e); } });
     addEventListener("pointerup", () => (drag = false));
     stage.addEventListener("dragstart", (e) => e.preventDefault());
     // перетаскивание планки не должно открывать страницу бренда
-    stage.addEventListener("click", (e) => { if (moved) e.preventDefault(); }, true);
+    stage.addEventListener("click", (e) => { if (moved) { e.preventDefault(); moved = false; } }, true);
     // при первом появлении планка один раз поднимается и опускается, чтобы было видно, что её можно трогать
     new IntersectionObserver((es, io) => {
       if (!es[0].isIntersecting || reduce) return;
