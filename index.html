@@ -17,11 +17,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=TikTok+Sans:wdth,wght@75..150,300..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="planka.css?v=6">
+<link rel="stylesheet" href="planka.css?v=9">
 </head>
 <body>
 <header class="cover">
-  <div class="topbar"><span>Выпуск 1, ноябрь 2026</span><nav aria-label="Разделы"><a href="catalog.html">Каталог</a><a href="#how">Как купить</a><a href="brands.html">Брендам</a></nav></div>
+  <div class="topbar"><span>Выпуск 1, ноябрь 2026</span><nav aria-label="Разделы"><a href="catalog.html">Каталог</a><a href="all-brands.html">Бренды</a><a href="#how">Как купить</a><a href="brands.html">Брендам</a></nav></div>
   <span class="mast disp" aria-hidden="true">Планка</span>
   <div class="cover-grid">
     <figure class="c-main"><img src="img/cover-main.jpg" width="1100" height="1300" alt="Человек в красном пиджаке сидит на лестнице"><figcaption class="cl">Пиджак, Красная линия, Москва. 12&nbsp;500&nbsp;₽</figcaption></figure>
@@ -88,9 +88,17 @@
 <section class="list" id="all" aria-labelledby="all-h">
   <div class="list-head">
     <h2 id="all-h">Новые в каталоге</h2>
-    <a class="btn" href="catalog.html">Весь каталог <span id="total"></span> <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9h11M10 4.5 14.5 9 10 13.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a class="btn" href="all-brands.html">Все бренды <span id="total"></span> <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9h11M10 4.5 14.5 9 10 13.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
   </div>
   <div class="strip" id="strip"></div>
+</section>
+
+<section class="shelf" id="find" aria-labelledby="shop-h">
+  <div class="list-head">
+    <h2 id="shop-h">Что ищете</h2>
+    <a class="btn" href="catalog.html">Весь каталог <span id="itotal"></span> <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9h11M10 4.5 14.5 9 10 13.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  </div>
+  <div class="cat-index" id="catIndex"></div>
 </section>
 
 <section class="how" id="how" aria-labelledby="how-h">
@@ -120,11 +128,11 @@
 
 <footer class="foot">
   <span>Маркет проверенных брендов</span>
-  <nav aria-label="Подвал"><a href="catalog.html">Каталог</a><a href="brands.html">Брендам</a><a href="#" data-cfg="tgChannel" data-soon="Канал запустим вместе с первыми брендами.">Telegram</a></nav>
+  <nav aria-label="Подвал"><a href="catalog.html">Каталог</a><a href="all-brands.html">Бренды</a><a href="brands.html">Брендам</a><a href="#" data-cfg="tgChannel" data-soon="Канал запустим вместе с первыми брендами.">Telegram</a></nav>
   <span>2026, <a href="privacy.html">политика конфиденциальности</a>. Фото: Unsplash</span>
 </footer>
 <script src="config.js?v=2"></script>
-<script src="data/brands.js?v=2"></script>
-<script src="app.js?v=6"></script>
+<script src="data/brands.js?v=3"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>

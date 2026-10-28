@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Все бренды — Планка</title>
-<meta name="description" content="Все марки в каталоге Планки: поиск по названию и городу, категории.">
+<title>Каталог — Планка</title>
+<meta name="description" content="Вещи проверенных брендов одежды: джинсы, верхняя одежда, трикотаж, обувь, сумки. Фильтр по категории и цене, покупка на сайте бренда.">
 <meta name="theme-color" content="#f7f9f8">
 <meta name="robots" content="noindex">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Все бренды — Планка">
-<meta property="og:description" content="Все марки в каталоге Планки: поиск по названию и городу, категории.">
+<meta property="og:title" content="Каталог — Планка">
+<meta property="og:description" content="Каталог небольших брендов одежды. Каждый проверяем сами: стаж, отзывы, качество вещей. Покупаете на сайте бренда по его цене.">
 <meta property="og:image" content="og.png">
 <meta property="og:locale" content="ru_RU">
 <meta name="twitter:card" content="summary_large_image">
@@ -17,30 +17,43 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=TikTok+Sans:wdth,wght@75..150,300..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="planka.css?v=6">
+<link rel="stylesheet" href="planka.css?v=9">
 </head>
 <body>
 <main class="page">
-  <div class="topbar"><a href="index.html" aria-label="Планка, на главную"><b class="disp">Планка</b></a><nav aria-label="Разделы"><a href="catalog.html" aria-current="page">Каталог</a><a href="index.html#live">Поднять планку</a><a href="brands.html">Брендам</a></nav></div>
-  <div class="cat-head">
-    <h1>Все бренды</h1>
-    <div class="dir-tools">
-      <label class="search"><span class="vh">Поиск бренда</span><input type="search" id="q" placeholder="Найти бренд или город" autocomplete="off"></label>
-      <div class="chips" id="chips" role="group" aria-label="Категории"></div>
-    </div>
+  <div class="topbar"><a href="index.html" aria-label="Планка, на главную"><b class="disp">Планка</b></a><nav aria-label="Разделы"><a href="catalog.html" aria-current="page">Каталог</a><a href="all-brands.html">Бренды</a><a href="brands.html">Брендам</a></nav></div>
+  <div class="shop-head">
+    <h1>Каталог <span id="count" class="cnt"></span></h1>
+    <label class="search"><span class="vh">Поиск</span><input type="search" id="q" placeholder="Джинсы, пальто, название бренда" autocomplete="off"></label>
   </div>
-  <div class="dir" id="dir"></div>
-  <p class="empty" id="empty" hidden>Ничего не нашли. Попробуйте другое слово.</p>
-  <p class="note" style="margin-top:40px">Бренды и фото здесь пока примеры.</p>
+  <div class="shop-tools">
+    <div class="seg" id="gender" role="group" aria-label="Для кого">
+      <button type="button" data-g="" aria-pressed="true">Все</button>
+      <button type="button" data-g="ж" aria-pressed="false">Женское</button>
+      <button type="button" data-g="м" aria-pressed="false">Мужское</button>
+    </div>
+    <label class="sort">Сортировка
+      <select id="sort">
+        <option value="new">Сначала новые</option>
+        <option value="rating">По оценке бренда</option>
+        <option value="cheap">Сначала дешевле</option>
+        <option value="dear">Сначала дороже</option>
+      </select>
+    </label>
+  </div>
+  <div class="chips" id="cats" role="group" aria-label="Категории"></div>
+  <div class="items-grid" id="shop"></div>
+  <p class="empty" id="empty" hidden>Таких вещей пока нет. Попробуйте другую категорию или уберите поиск.</p>
+  <p class="note" style="margin-top:40px">Вещи, цены и бренды здесь пока примеры. Нажмите на вещь, и откроется магазин бренда.</p>
 </main>
 <footer class="foot">
   <span>Небольшие марки одежды</span>
-  <nav aria-label="Подвал"><a href="catalog.html">Каталог</a><a href="brands.html">Брендам</a><a href="#" data-cfg="tgChannel" data-soon="Канал запустим вместе с первыми брендами.">Telegram</a></nav>
+  <nav aria-label="Подвал"><a href="all-brands.html">Бренды</a><a href="brands.html">Брендам</a><a href="#" data-cfg="tgChannel" data-soon="Канал запустим вместе с первыми брендами.">Telegram</a></nav>
   <span>2026, <a href="privacy.html">политика конфиденциальности</a>. Фото: Unsplash</span>
 </footer>
 
 <script src="config.js?v=2"></script>
-<script src="data/brands.js?v=2"></script>
-<script src="app.js?v=6"></script>
+<script src="data/brands.js?v=3"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>

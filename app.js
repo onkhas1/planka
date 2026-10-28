@@ -12,7 +12,26 @@
   const yw = (n) => { const a = n % 10, b = n % 100; return n + (a === 1 && b !== 11 ? " год" : a >= 2 && a <= 4 && (b < 12 || b > 14) ? " года" : " лет"); };
   const safeUrl = (u) => (/^https:\/\//.test(u || "") ? u : "");
   const link = (b) => `brand.html?id=${encodeURIComponent(b.id)}`;
+  const ITEMS = (window.PLANKA_ITEMS || []).map((it, i) => ({ ...it, order: i, b: B.find((x) => x.id === it.brand) })).filter((it) => it.b);
+  // цена бренда для планки — его самая доступная вещь в каталоге
+  B.forEach((b) => { const own = ITEMS.filter((it) => it.b === b); if (own.length) b.price = Math.min(...own.map((it) => it.price)); });
   const JB = B.slice(0, 6);
+  const itemUrl = (it) => {
+    const u = safeUrl(it.url) || safeUrl(it.b.site);
+    if (!u) return link(it.b);
+    const x = new URL(u); x.searchParams.set("utm_source", "planka"); x.searchParams.set("utm_medium", "catalog"); return x.toString();
+  };
+  const arrowS = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+  const itemCard = (it) => {
+    const ext = !!(safeUrl(it.url) || safeUrl(it.b.site));
+    return `<a class="item" href="${esc(itemUrl(it))}"${ext ? ' target="_blank" rel="noopener"' : ""}>
+      <div class="ph"><img src="${esc(it.img)}" width="800" height="1000" alt="${esc(it.name)}" loading="lazy">${it.b.example ? '<span class="ex-tag">Пример</span>' : ""}</div>
+      <span class="br"><b>${esc(it.b.name)}</b><span>оценка ${num(it.b.rating)}</span></span>
+      <h3>${esc(it.name)}</h3>
+      <span class="pr">${rub.format(it.price)}&nbsp;₽</span>
+      <span class="go">${ext ? "В магазин бренда" : "К бренду"} ${arrowS}</span>
+    </a>`;
+  };
   const arrow = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
 
   /* ===== живая планка ===== */
@@ -137,6 +156,57 @@
     render();
   }
 
+  /* ===== каталог вещей: для кого, категория, сортировка, поиск ===== */
+  const shop = $("#shop");
+  if (shop) {
+    const P = new URLSearchParams(location.search);
+    const st = { g: P.get("g") || "", cat: P.get("cat") || "Все", sort: P.get("sort") || "new", q: P.get("q") || "" };
+    const q = $("#q"), sort = $("#sort"), cats = $("#cats"), empty = $("#empty"), count = $("#count");
+    q.value = st.q; sort.value = st.sort;
+    const forG = (it) => !st.g || it.g === st.g || it.g === "у";
+    const sorters = {
+      new: (a, b) => a.order - b.order,
+      rating: (a, b) => b.b.rating - a.b.rating || a.price - b.price,
+      cheap: (a, b) => a.price - b.price,
+      dear: (a, b) => b.price - a.price,
+    };
+    const render = () => {
+      const pool = ITEMS.filter(forG);
+      const names = ["Все", ...new Set(ITEMS.map((it) => it.cat))];
+      if (!names.includes(st.cat)) st.cat = "Все";
+      cats.innerHTML = names.map((c) => {
+        const n = c === "Все" ? pool.length : pool.filter((it) => it.cat === c).length;
+        return `<button type="button" data-c="${esc(c)}" aria-pressed="${c === st.cat}"${n ? "" : " disabled"}>${esc(c)}<span>${n}</span></button>`;
+      }).join("");
+      const s = st.q.trim().toLowerCase();
+      const list = pool.filter((it) => (st.cat === "Все" || it.cat === st.cat) && (!s || (it.name + " " + it.cat + " " + it.b.name + " " + it.b.city).toLowerCase().includes(s)))
+        .sort(sorters[st.sort] || sorters.new);
+      shop.innerHTML = list.map(itemCard).join("");
+      empty.hidden = list.length > 0;
+      count.textContent = list.length + " " + (list.length % 10 === 1 && list.length % 100 !== 11 ? "вещь" : [2, 3, 4].includes(list.length % 10) && ![12, 13, 14].includes(list.length % 100) ? "вещи" : "вещей");
+      $$("#gender button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.g === st.g)));
+      // состояние в адресе: ссылкой на «женские джинсы, сначала дешевле» можно поделиться
+      const u = new URLSearchParams();
+      if (st.g) u.set("g", st.g); if (st.cat !== "Все") u.set("cat", st.cat); if (st.sort !== "new") u.set("sort", st.sort); if (st.q) u.set("q", st.q);
+      history.replaceState(null, "", location.pathname + (u.toString() ? "?" + u : ""));
+    };
+    cats.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b && !b.disabled) { st.cat = b.dataset.c; render(); } });
+    $("#gender").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { st.g = b.dataset.g; render(); } });
+    sort.addEventListener("change", () => { st.sort = sort.value; render(); });
+    q.addEventListener("input", () => { st.q = q.value; render(); });
+    render();
+  }
+
+  /* ===== главная: «что ищете» — категории с примером вещи ===== */
+  const ci = $("#catIndex");
+  if (ci) {
+    const it2 = $("#itotal"); if (it2) it2.textContent = "(" + ITEMS.length + ")";
+    const byCat = {};
+    ITEMS.forEach((it) => (byCat[it.cat] ||= []).push(it));
+    ci.innerHTML = Object.entries(byCat).sort((a, b) => b[1].length - a[1].length).map(([c, list]) =>
+      `<a href="catalog.html?cat=${encodeURIComponent(c)}"><span class="t"><img src="${esc(list[0].img)}" width="120" height="150" alt="" loading="lazy"></span><span class="nm">${esc(c)}</span><span class="n">${list.length}</span></a>`).join("");
+  }
+
   /* ===== страница бренда ===== */
   const bp = $("[data-brand-page]");
   if (bp) {
@@ -174,7 +244,7 @@
           <div class="g"><h3>Сама вещь</h3><p>Проверили состав, швы и посадку.</p><ul class="checks"><li>Состав</li><li>Швы</li><li>Посадка</li></ul></div>
         </div></section>` : ""}
         <section class="b-items" aria-labelledby="items-h"><h2 id="items-h">Вещи</h2>
-          <div class="items">${(b.items || []).map(([n, m, p]) => `<div><span class="vh">Вещь:</span>${esc(n)}<span>${esc(m)}</span><b>${rub.format(p)}&nbsp;₽</b></div>`).join("")}</div>
+          <div class="items-grid">${ITEMS.filter((it) => it.b === b).map(itemCard).join("") || '<p class="note">Вещи этого бренда скоро появятся.</p>'}</div>
           <p class="note">Цены на сайте бренда могут отличаться. Заказ, доставка и возврат идут по правилам его магазина.</p>
         </section>
         <section class="b-more" aria-labelledby="more-h"><div class="list-head" style="padding:0"><h2 id="more-h" class="vh">Ещё бренды</h2></div>

@@ -58,3 +58,47 @@ window.PLANKA_BRANDS = [
     about: "Костюмы с широким плечом для работы и вечера.",
     items: [["Костюм", "шерсть, вискоза", 18900], ["Жилет", "шерсть", 6400]] },
 ];
+
+/*
+  Вещи для каталога. brand — id бренда из списка выше.
+  cat — категория, g — для кого: "ж" женское, "м" мужское, "у" для всех.
+  url — ссылка на эту вещь в магазине бренда (https://...). Пусто — откроется страница бренда в Планке.
+  Порядок в списке = порядок «Новые»: новые вещи добавляйте наверх.
+*/
+window.PLANKA_ITEMS = [
+  { brand: "dvoe-studio", name: "Джинсы прямые", cat: "Брюки и джинсы", g: "у", price: 6900, img: "img/p-jeans-straight.jpg", url: "" },
+  { brand: "palto-i-tochka", name: "Пальто-халат", cat: "Верхняя одежда", g: "ж", price: 12500, img: "img/p-coat-robe.jpg", url: "" },
+  { brand: "iznanka", name: "Свитер с высоким горлом", cat: "Трикотаж", g: "ж", price: 7600, img: "img/p-sweater-grey.jpg", url: "" },
+  { brand: "teply-ceh", name: "Ботинки челси", cat: "Обувь", g: "у", price: 16400, img: "img/p-chelsea.jpg", url: "" },
+  { brand: "bobina", name: "Сумка через плечо", cat: "Сумки", g: "ж", price: 6800, img: "img/p-bag-sling.jpg", url: "" },
+  { brand: "plecho", name: "Костюм синий", cat: "Костюмы", g: "м", price: 28900, img: "img/p-suit-blue.jpg", url: "" },
+  { brand: "dacha", name: "Джинсы светлые", cat: "Брюки и джинсы", g: "ж", price: 5900, img: "img/p-jeans-light.jpg", url: "" },
+  { brand: "severo-zapad", name: "Пальто прямое", cat: "Верхняя одежда", g: "м", price: 23500, img: "img/p-coat-man.jpg", url: "" },
+  { brand: "vera-kim", name: "Платье миди", cat: "Платья", g: "ж", price: 11800, img: "img/p-dress-white.jpg", url: "" },
+  { brand: "kusok", name: "Свитер ржавого цвета", cat: "Трикотаж", g: "у", price: 6400, img: "img/p-sweater-rust.jpg", url: "" },
+  { brand: "len-i-sol", name: "Рубашка льняная", cat: "Рубашки", g: "м", price: 5400, img: "img/p-shirt-blue.jpg", url: "" },
+  { brand: "beton", name: "Ботинки чёрные", cat: "Обувь", g: "м", price: 13900, img: "img/p-boots-lace.jpg", url: "" },
+  { brand: "dvoe-studio", name: "Худи", cat: "Худи и футболки", g: "у", price: 7200, img: "img/p-hoodie-grey.jpg", url: "" },
+  { brand: "krasnaya-liniya", name: "Костюм зелёный", cat: "Костюмы", g: "у", price: 26500, img: "img/p-suit-green.jpg", url: "" },
+  { brand: "ushanka-lab", name: "Шапки вязаные", cat: "Головные уборы", g: "у", price: 2400, img: "img/p-hats-knit.jpg", url: "" },
+  { brand: "severo-zapad", name: "Пальто с поясом", cat: "Верхняя одежда", g: "ж", price: 21900, img: "img/p-coat-belt.jpg", url: "" },
+  { brand: "dvoe-studio", name: "Джинсы широкие", cat: "Брюки и джинсы", g: "ж", price: 7400, img: "img/p-jeans-wide.jpg", url: "" },
+  { brand: "bobina", name: "Сумка-тоут", cat: "Сумки", g: "у", price: 5400, img: "img/p-tote.jpg", url: "" },
+  { brand: "plecho", name: "Платье чёрное", cat: "Платья", g: "ж", price: 12900, img: "img/p-dress-black.jpg", url: "" },
+  { brand: "iznanka", name: "Кардиган оверсайз", cat: "Трикотаж", g: "у", price: 9800, img: "img/p-cardigan.jpg", url: "" },
+  { brand: "teply-ceh", name: "Кеды кожаные", cat: "Обувь", g: "у", price: 9800, img: "img/p-kedy-white.jpg", url: "" },
+  { brand: "len-i-sol", name: "Брюки льняные", cat: "Брюки и джинсы", g: "ж", price: 6200, img: "img/p-pants-linen.jpg", url: "" },
+  { brand: "palto-i-tochka", name: "Пальто красное", cat: "Верхняя одежда", g: "ж", price: 19800, img: "img/p-coat-red.jpg", url: "" },
+  { brand: "dacha", name: "Рубашка синяя", cat: "Рубашки", g: "м", price: 4200, img: "img/p-shirt-line.jpg", url: "" },
+  { brand: "kusok", name: "Шапка бини", cat: "Головные уборы", g: "у", price: 2200, img: "img/p-beanie-black.jpg", url: "" },
+  { brand: "ovsyanka", name: "Свитер шоколадный", cat: "Трикотаж", g: "ж", price: 6900, img: "img/p-sweater-brown.jpg", url: "" },
+  { brand: "plecho", name: "Костюм серый", cat: "Костюмы", g: "м", price: 24900, img: "img/p-suit-grey.jpg", url: "" },
+  { brand: "beton", name: "Кеды бордовые", cat: "Обувь", g: "у", price: 7900, img: "img/p-kedy-maroon.jpg", url: "" },
+  { brand: "vera-kim", name: "Платье на одно плечо", cat: "Платья", g: "ж", price: 14600, img: "img/p-dress-maroon.jpg", url: "" },
+  { brand: "len-i-sol", name: "Рубашка белая", cat: "Рубашки", g: "у", price: 4900, img: "img/p-shirt-white.jpg", url: "" },
+  { brand: "krasnaya-liniya", name: "Брюки розовые", cat: "Брюки и джинсы", g: "ж", price: 8900, img: "img/p-pants-pink.jpg", url: "" },
+  { brand: "permsky-sviter", name: "Шапка с бубоном", cat: "Головные уборы", g: "у", price: 1900, img: "img/p-cap-yellow.jpg", url: "" },
+  { brand: "dacha", name: "Худи белое", cat: "Худи и футболки", g: "у", price: 5600, img: "img/p-hoodie-white.jpg", url: "" },
+  { brand: "teply-ceh", name: "Ботинки коричневые", cat: "Обувь", g: "м", price: 15400, img: "img/p-boots-brown.jpg", url: "" },
+  { brand: "bobina", name: "Сумка серая", cat: "Сумки", g: "ж", price: 7900, img: "img/p-bag-grey.jpg", url: "" },
+];
