@@ -487,3 +487,9 @@ body.lock{overflow:hidden}
   .pd-buy{position:fixed;left:var(--m);right:var(--m);bottom:16px;z-index:3;box-shadow:0 10px 24px -12px rgba(0,0,0,.5)}
 }
 @media (min-width:901px){.fbtn{display:none}.shop-tools{justify-content:flex-end}}
+.jumper{cursor:pointer}
+.jumper .ph{position:relative}
+.jumper .ph::after{content:"Открыть бренд";position:absolute;left:0;right:0;bottom:0;padding:8px 10px;background:var(--teal);color:var(--bg);font-size:14px;font-weight:500;transform:translateY(100%);transition:transform .3s var(--ease)}
+a.jumper:hover .ph::after,a.jumper:focus-visible .ph::after{transform:none}
+a.jumper:hover b{text-decoration:underline;text-underline-offset:4px}
+@media (max-width:900px){.jumper .ph::after{display:none}}

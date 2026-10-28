@@ -34,7 +34,7 @@ code{font-size:13px;word-break:break-all}
     <div class="note">Это заглушка вместо настоящего магазина. Когда бренд подключится, кнопка «Купить на сайте бренда» откроет его страницу этой вещи, а выбранный размер и метка Планки придут в ссылке:<br><code id="url"></code></div>
   </div>
 </main>
-<script src="data/brands.js?v=4"></script>
+<script src="data/brands.js?v=5"></script>
 <script>
 const P = new URLSearchParams(location.search), B = window.PLANKA_BRANDS || [], I = window.PLANKA_ITEMS || [];
 const it = I.find((x) => x.brand === P.get("brand") && x.name === P.get("name")) || I[0];

@@ -6,25 +6,26 @@
   rating и reviews — оценка покупателей и число отзывов там, где бренд продаёт сейчас.
   price — цена самой доступной вещи, img — фото из папки img/.
   site — адрес магазина бренда (https://...). Пусто — кнопка «на сайт» не показывается.
-  Первые шесть брендов участвуют в «Поднимите планку» на главной, у них должна быть цена.
+  bar: 1…6 — бренд стоит на «Поднимите планку» на главной, число = место слева направо.
+  Можно продавать как платное место. Если не отмечен никто, там стоят первые шесть брендов списка.
 */
 window.PLANKA_BRANDS = [
-  { id: "iznanka", example: true, name: "Изнанка", cat: "Трикотаж", city: "Москва", years: 4, since: "весны 2022-го", rating: 4.91, reviews: 384, price: 7600, joined: "14 октября", img: "img/b-iznanka.jpg", site: "",
+  { id: "iznanka", example: true, bar: 1, name: "Изнанка", cat: "Трикотаж", city: "Москва", years: 4, since: "весны 2022-го", rating: 4.91, reviews: 384, price: 7600, joined: "14 октября", img: "img/b-iznanka.jpg", site: "",
     about: "Свитеры и кардиганы из мериноса небольшими партиями. Горловины доделывают вручную.",
     items: [["Свитер с высоким горлом", "меринос", 7600], ["Кардиган на пуговицах", "меринос, альпака", 9800], ["Джемпер оверсайз", "меринос", 8400]] },
-  { id: "severo-zapad", example: true, name: "Северо-Запад", cat: "Верхняя одежда", city: "Санкт-Петербург", years: 7, since: "2019-го", rating: 4.68, reviews: 1120, price: 14900, joined: "9 октября", img: "img/b-severo-zapad.jpg", site: "",
+  { id: "severo-zapad", example: true, bar: 2, name: "Северо-Запад", cat: "Верхняя одежда", city: "Санкт-Петербург", years: 7, since: "2019-го", rating: 4.68, reviews: 1120, price: 14900, joined: "9 октября", img: "img/b-severo-zapad.jpg", site: "",
     about: "Пальто и куртки под питерскую погоду: ветер, мокрый снег, долгие прогулки.",
     items: [["Куртка-рубашка", "шерсть, утеплитель", 14900], ["Пальто прямое", "шерсть 80%", 23500]] },
-  { id: "dvoe-studio", example: true, name: "dvoe studio", cat: "Базовый гардероб", city: "Москва", years: 5, since: "2021-го", rating: 4.83, reviews: 612, price: 3900, joined: "2 октября", img: "img/b-dvoe-studio.jpg", site: "",
+  { id: "dvoe-studio", example: true, bar: 3, name: "dvoe studio", cat: "Базовый гардероб", city: "Москва", years: 5, since: "2021-го", rating: 4.83, reviews: 612, price: 3900, joined: "2 октября", img: "img/b-dvoe-studio.jpg", site: "",
     about: "Футболки, худи и брюки, которые носятся каждый день и не теряют форму после стирок.",
     items: [["Футболка плотная", "хлопок 240 г", 3900], ["Худи", "футер с начёсом", 7200], ["Брюки широкие", "хлопок, лён", 6800]] },
-  { id: "teply-ceh", example: true, name: "Тёплый цех", cat: "Обувь", city: "Казань", years: 6, since: "2020-го", rating: 4.62, reviews: 318, price: 9800, joined: "28 сентября", img: "img/b-teply-ceh.jpg", site: "",
+  { id: "teply-ceh", example: true, bar: 4, name: "Тёплый цех", cat: "Обувь", city: "Казань", years: 6, since: "2020-го", rating: 4.62, reviews: 318, price: 9800, joined: "28 сентября", img: "img/b-teply-ceh.jpg", site: "",
     about: "Кеды и ботинки на своей колодке. Шьют на небольшой фабрике в Казани.",
     items: [["Кеды кожаные", "кожа, резина", 9800], ["Ботинки зимние", "кожа, мех", 16400]] },
-  { id: "bobina", example: true, name: "Бобина", cat: "Аксессуары", city: "Екатеринбург", years: 3, since: "осени 2023-го", rating: 4.97, reviews: 96, price: 1800, joined: "21 сентября", img: "img/b-bobina.jpg", site: "",
+  { id: "bobina", example: true, bar: 5, name: "Бобина", cat: "Аксессуары", city: "Екатеринбург", years: 3, since: "осени 2023-го", rating: 4.97, reviews: 96, price: 1800, joined: "21 сентября", img: "img/b-bobina.jpg", site: "",
     about: "Ремни, кошельки и часовые ремешки из толстой кожи.",
     items: [["Ремень", "кожа, латунь", 1800], ["Ремешок для часов", "кожа", 2400], ["Кошелёк", "кожа", 3600]] },
-  { id: "palto-i-tochka", example: true, name: "Пальто и точка", cat: "Верхняя одежда", city: "Москва", years: 5, since: "2021-го", rating: 4.74, reviews: 233, price: 12500, joined: "17 сентября", img: "img/b-palto-i-tochka.jpg", site: "",
+  { id: "palto-i-tochka", example: true, bar: 6, name: "Пальто и точка", cat: "Верхняя одежда", city: "Москва", years: 5, since: "2021-го", rating: 4.74, reviews: 233, price: 12500, joined: "17 сентября", img: "img/b-palto-i-tochka.jpg", site: "",
     about: "Делают только пальто. Три модели в сезон, каждую в пяти цветах.",
     items: [["Пальто-халат", "шерсть 70%", 12500], ["Пальто двубортное", "шерсть, кашемир", 19800]] },
   { id: "kusok", example: true, name: "KUSOK", cat: "Трикотаж", city: "Санкт-Петербург", years: 3, since: "2023-го", rating: 4.8, reviews: 141, joined: "11 сентября", img: "img/b-kusok.jpg", site: "",

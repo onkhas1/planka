@@ -17,7 +17,9 @@
   const ITEMS = (window.PLANKA_ITEMS || []).map((it, i) => ({ ...it, order: i, id: it.id || it.brand + "-" + slug(it.name), b: B.find((x) => x.id === it.brand) })).filter((it) => it.b);
   // цена бренда для планки — его самая доступная вещь в каталоге
   B.forEach((b) => { const own = ITEMS.filter((it) => it.b === b); if (own.length) b.price = Math.min(...own.map((it) => it.price)); });
-  const JB = B.slice(0, 6);
+  // бренды на «Поднимите планку»: отмеченные bar: 1…6 в data/brands.js (по порядку), иначе первые шесть
+  const flagged = B.filter((b) => b.bar).sort((a, b) => a.bar - b.bar).slice(0, 6);
+  const JB = flagged.length >= 2 ? flagged : B.slice(0, 6);
   const itemUrl = (it) => {
     const u = safeUrl(it.url) || safeUrl(it.b.site);
     if (!u) return link(it.b);
@@ -99,7 +101,11 @@
       else { const room = r.height - jh - 36; pos = (((r.bottom - e.clientY - jh) / room - 0.08) / 0.92) * 100; }
       pos = Math.max(0, Math.min(100, pos)); layoutBar();
     };
-    stage.addEventListener("pointerdown", (e) => { stopAuto(); drag = true; moved = false; stage.setPointerCapture(e.pointerId); fromPointer(e); e.preventDefault(); });
+    stage.addEventListener("pointerdown", (e) => {
+      // нажатие на бренд — это переход на его страницу, планку не трогаем
+      if (e.target.closest(".jumper")) { stopAuto(); return; }
+      stopAuto(); drag = true; moved = false; stage.setPointerCapture(e.pointerId); fromPointer(e); e.preventDefault();
+    });
     stage.addEventListener("pointermove", (e) => { if (drag) { moved = true; fromPointer(e); } });
     addEventListener("pointerup", () => (drag = false));
     stage.addEventListener("dragstart", (e) => e.preventDefault());
@@ -355,7 +361,7 @@
       const go = site
         ? `<a class="btn" href="${esc(site)}" target="_blank" rel="noopener">В магазин бренда ${arrow}</a>`
         : `<span class="btn" aria-disabled="true">${b.example ? "У примера нет магазина" : "Ссылка появится скоро"}</span>`;
-      const inBar = JB.includes(b);
+      const inBar = true;
       bp.innerHTML = `
         <section class="b-cover" aria-labelledby="b-h">
           <figure class="b-photo"><img src="${esc(b.img)}" width="800" height="1000" alt=""></figure>
