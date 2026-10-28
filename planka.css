@@ -493,3 +493,41 @@ body.lock{overflow:hidden}
 a.jumper:hover .ph::after,a.jumper:focus-visible .ph::after{transform:none}
 a.jumper:hover b{text-decoration:underline;text-underline-offset:4px}
 @media (max-width:900px){.jumper .ph::after{display:none}}
+
+/* ===== несколько фото у вещи ===== */
+.item .gal{position:absolute;inset:0}
+.item .gal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .2s}
+.item .gal img.on{opacity:1}
+.item:hover .gal img{transform:none}
+.dots{position:absolute;left:8px;right:8px;bottom:8px;display:flex;gap:4px;z-index:1;pointer-events:none}
+.dots i{flex:1;height:3px;background:rgba(247,249,248,.55)}
+.dots i.on{background:var(--bg)}
+@media (hover:none),(pointer:coarse){
+  .item .gal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .item .gal::-webkit-scrollbar{display:none}
+  .item .gal img{position:static;flex:0 0 100%;opacity:1;scroll-snap-align:start}
+}
+
+/* галерея в окне вещи */
+.pd-ph{display:flex;flex-direction:column}
+.pd-main{position:relative;overflow:hidden;background:var(--surface)}
+.pd-main .pd-img{width:100%;aspect-ratio:4/5;max-height:calc(100svh - 150px);object-fit:cover;display:block;cursor:zoom-in;transition:transform .25s var(--ease)}
+.pd-main.zoomed .pd-img{transform:scale(2.2);cursor:zoom-out}
+.pd-nav,.pd-zoom-btn{position:absolute;z-index:2;width:44px;height:44px;border:0;background:rgba(247,249,248,.92);display:grid;place-items:center;cursor:pointer}
+.pd-nav{top:50%;transform:translateY(-50%)}
+.pd-nav.prev{left:10px}.pd-nav.next{right:10px}
+.pd-zoom-btn{right:10px;bottom:10px}
+.pd-nav svg,.pd-zoom-btn svg,.pd-zl-x svg{width:20px;height:20px;stroke:var(--ink);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.pd-nav:hover,.pd-zoom-btn:hover{background:var(--bg)}
+.pd-cnt{position:absolute;left:10px;bottom:10px;z-index:2;background:rgba(247,249,248,.92);font-size:14px;padding:5px 8px;font-variant-numeric:tabular-nums}
+.pd-thumbs{display:flex;gap:6px;padding:8px;background:var(--surface)}
+.pd-thumbs button{flex:0 0 64px;padding:0;border:2px solid transparent;background:none;cursor:pointer}
+.pd-thumbs button[aria-current]{border-color:var(--teal)}
+.pd-thumbs img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}
+.pd-zl{position:fixed;inset:0;z-index:30;background:var(--bg);overflow:auto}
+.pd-zl img{width:250%;max-width:none;display:block}
+.pd-zl-x{position:fixed;top:12px;right:12px;width:48px;height:48px;border:0;background:var(--bg);display:grid;place-items:center;box-shadow:0 6px 18px -8px rgba(0,0,0,.4)}
+@media (max-width:900px){
+  .pd-main .pd-img{max-height:62svh}
+  .pd-thumbs{display:none}
+}

@@ -14,7 +14,7 @@
   const link = (b) => `brand.html?id=${encodeURIComponent(b.id)}`;
   const TR = { а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "e", ж: "zh", з: "z", и: "i", й: "y", к: "k", л: "l", м: "m", н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "h", ц: "c", ч: "ch", ш: "sh", щ: "sch", ы: "y", э: "e", ю: "yu", я: "ya" };
   const slug = (t) => [...t.toLowerCase()].map((c) => TR[c] ?? (/[a-z0-9]/.test(c) ? c : "-")).join("").replace(/-+/g, "-").replace(/^-|-$/g, "");
-  const ITEMS = (window.PLANKA_ITEMS || []).map((it, i) => ({ ...it, order: i, id: it.id || it.brand + "-" + slug(it.name), b: B.find((x) => x.id === it.brand) })).filter((it) => it.b);
+  const ITEMS = (window.PLANKA_ITEMS || []).map((it, i) => ({ ...it, imgs: it.imgs && it.imgs.length ? it.imgs : [it.img], order: i, id: it.id || it.brand + "-" + slug(it.name), b: B.find((x) => x.id === it.brand) })).filter((it) => it.b);
   // цена бренда для планки — его самая доступная вещь в каталоге
   B.forEach((b) => { const own = ITEMS.filter((it) => it.b === b); if (own.length) b.price = Math.min(...own.map((it) => it.price)); });
   // бренды на «Поднимите планку»: отмеченные bar: 1…6 в data/brands.js (по порядку), иначе первые шесть
@@ -27,7 +27,7 @@
   };
   const arrowS = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
   const itemCard = (it) => `<a class="item" href="catalog.html?item=${encodeURIComponent(it.id)}" data-item="${esc(it.id)}">
-      <div class="ph"><img src="${esc(it.img)}" width="800" height="1000" alt="${esc(it.name)}" loading="lazy">${it.b.example ? '<span class="ex-tag">Пример</span>' : ""}</div>
+      <div class="ph"><div class="gal">${it.imgs.map((src, k) => `<img src="${esc(src)}" width="800" height="1000" alt="${k ? "" : esc(it.name)}" loading="lazy"${k ? "" : ' class="on"'}>`).join("")}</div>${it.imgs.length > 1 ? `<span class="dots">${it.imgs.map((_, k) => `<i${k ? "" : ' class="on"'}></i>`).join("")}</span>` : ""}${it.b.example ? '<span class="ex-tag">Пример</span>' : ""}</div>
       <span class="br"><b>${esc(it.b.name)}</b><span>оценка ${num(it.b.rating)}</span></span>
       <h3>${esc(it.name)}</h3>
       <span class="pr">${rub.format(it.price)}&nbsp;₽</span>
@@ -288,6 +288,29 @@
     read(); if (new URLSearchParams(location.search).get("all")) st.all = 1; renderShop();
   }
 
+  /* ===== фото в карточках: на компьютере меняются при ведении мышью, на телефоне листаются пальцем ===== */
+  const fine = matchMedia("(hover:hover) and (pointer:fine)");
+  const showPh = (ph, k) => {
+    $$(".gal img", ph).forEach((im, i) => im.classList.toggle("on", i === k));
+    $$(".dots i", ph).forEach((d, i) => d.classList.toggle("on", i === k));
+  };
+  document.addEventListener("mousemove", (e) => {
+    if (!fine.matches) return;
+    const ph = e.target.closest(".item .ph"); if (!ph) return;
+    const n = $$(".gal img", ph).length; if (n < 2) return;
+    const r = ph.getBoundingClientRect();
+    showPh(ph, Math.min(n - 1, Math.floor(((e.clientX - r.left) / r.width) * n)));
+  });
+  document.addEventListener("mouseout", (e) => {
+    const ph = e.target.closest && e.target.closest(".item .ph");
+    if (ph && !ph.contains(e.relatedTarget)) showPh(ph, 0);
+  });
+  document.addEventListener("scroll", (e) => {
+    const gal = e.target.closest && e.target.closest(".item .gal"); if (!gal) return;
+    const k = Math.round(gal.scrollLeft / gal.clientWidth);
+    $$(".dots i", gal.parentElement).forEach((d, i) => d.classList.toggle("on", i === k));
+  }, true);
+
   /* ===== карточка вещи: окно на компьютере, шторка на телефоне ===== */
   const pd = $("#pd");
   const openItem = (it, push) => {
@@ -295,7 +318,14 @@
     const sizes = it.sizes || ["Один размер"], one = sizes.length === 1;
     pd.innerHTML = `<div class="pd-in">
       <button type="button" class="pd-x" aria-label="Закрыть"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
-      <figure class="pd-ph"><img src="${esc(it.img)}" width="800" height="1000" alt="${esc(it.name)}">${it.b.example ? '<span class="ex-tag">Пример</span>' : ""}</figure>
+      <figure class="pd-ph">
+        <div class="pd-main"><img class="pd-img" src="${esc(it.imgs[0])}" width="800" height="1000" alt="${esc(it.name)}">${it.b.example ? '<span class="ex-tag">Пример</span>' : ""}
+          ${it.imgs.length > 1 ? `<button type="button" class="pd-nav prev" aria-label="Предыдущее фото"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4 6.5 10l6 6"/></svg></button><button type="button" class="pd-nav next" aria-label="Следующее фото"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4l6 6-6 6"/></svg></button><span class="pd-cnt">1 / ${it.imgs.length}</span>` : ""}
+          <button type="button" class="pd-zoom-btn" aria-label="Приблизить фото"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4M9 6.5v5M6.5 9h5"/></svg></button>
+        </div>
+        ${it.imgs.length > 1 ? `<div class="pd-thumbs">${it.imgs.map((src, k) => `<button type="button" aria-label="Фото ${k + 1}"${k ? "" : ' aria-current="true"'}><img src="${esc(src)}" width="160" height="200" alt=""></button>`).join("")}</div>` : ""}
+      </figure>
+      <div class="pd-zl" hidden><img alt=""><button type="button" class="pd-zl-x" aria-label="Закрыть увеличение"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg></button></div>
       <div class="pd-info">
         <a class="pd-brand" href="${link(it.b)}">${esc(it.b.name)}</a>
         <h2 id="pd-name">${esc(it.name)}</h2>
@@ -310,6 +340,38 @@
         </dl>
         <p class="note">Оплата, доставка и возврат — на сайте бренда, по его правилам.</p>
       </div></div>`;
+    // галерея: стрелки, миниатюры, клавиши ← →, приближение
+    let k = 0;
+    const main = $(".pd-main", pd), img = $(".pd-img", pd), zl = $(".pd-zl", pd);
+    const show = (n) => {
+      k = (n + it.imgs.length) % it.imgs.length;
+      img.src = it.imgs[k]; main.classList.remove("zoomed");
+      const c = $(".pd-cnt", pd); if (c) c.textContent = `${k + 1} / ${it.imgs.length}`;
+      $$(".pd-thumbs button", pd).forEach((b, i) => b.toggleAttribute("aria-current", i === k));
+    };
+    $(".pd-nav.prev", pd)?.addEventListener("click", () => show(k - 1));
+    $(".pd-nav.next", pd)?.addEventListener("click", () => show(k + 1));
+    $$(".pd-thumbs button", pd).forEach((b, i) => b.addEventListener("click", () => show(i)));
+    pd.onkeydown = (e) => { if (e.key === "ArrowRight") show(k + 1); if (e.key === "ArrowLeft") show(k - 1); };
+    const zoom = () => {
+      if (fine.matches) { main.classList.toggle("zoomed"); return; }
+      zl.hidden = false; $("img", zl).src = it.imgs[k];
+      requestAnimationFrame(() => { zl.scrollLeft = (zl.scrollWidth - zl.clientWidth) / 2; zl.scrollTop = (zl.scrollHeight - zl.clientHeight) / 3; });
+    };
+    $(".pd-zoom-btn", pd).addEventListener("click", zoom);
+    img.addEventListener("click", zoom);
+    main.addEventListener("mousemove", (e) => {
+      if (!main.classList.contains("zoomed")) return;
+      const r = main.getBoundingClientRect();
+      img.style.transformOrigin = `${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`;
+    });
+    main.addEventListener("mouseleave", () => main.classList.remove("zoomed"));
+    $(".pd-zl-x", pd).addEventListener("click", () => (zl.hidden = true));
+    // свайп по большому фото на телефоне
+    let sx = null;
+    main.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
+    main.addEventListener("touchend", (e) => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) show(k + (dx < 0 ? 1 : -1)); sx = null; });
+
     const buy = $(".pd-buy", pd), hint = $(".pd-hint", pd);
     $$("input[name=size]", pd).forEach((r) => r.addEventListener("change", () => { buy.href = buyUrl(it, r.value); hint.textContent = ""; }));
     buy.addEventListener("click", (e) => {
