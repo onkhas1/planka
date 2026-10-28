@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Магазин бренда (демо)</title>
+<meta name="robots" content="noindex">
+<style>
+body{margin:0;font:16px/1.5 -apple-system,system-ui,"Segoe UI",sans-serif;background:#fff;color:#222}
+.bar{background:#222;color:#fff;padding:12px 20px;font-size:14px}
+.bar a{color:#fff}
+main{max-width:980px;margin:0 auto;padding:32px 20px 64px;display:grid;grid-template-columns:1fr 1fr;gap:40px}
+img{width:100%;aspect-ratio:4/5;object-fit:cover;background:#eee}
+h1{font-size:28px;margin:6px 0 8px}
+.brand{text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:#666}
+.price{font-size:24px;font-weight:600}
+.size{display:inline-block;margin:16px 0;padding:8px 14px;border:2px solid #222;font-weight:600}
+.cart{display:block;width:100%;padding:16px;border:0;background:#222;color:#fff;font:inherit;font-weight:600;margin-top:8px}
+.note{margin-top:24px;padding:14px 16px;background:#f3f3f3;font-size:14px}
+code{font-size:13px;word-break:break-all}
+@media(max-width:700px){main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bar">Демо. Так покупатель попадает на сайт бренда из Планки. <a href="javascript:history.back()">Вернуться в Планку</a></div>
+<main>
+  <img id="img" alt="">
+  <div>
+    <div class="brand" id="brand"></div>
+    <h1 id="name"></h1>
+    <div class="price" id="price"></div>
+    <div class="size" id="size"></div>
+    <button class="cart" type="button" disabled>Добавить в корзину</button>
+    <div class="note">Это заглушка вместо настоящего магазина. Когда бренд подключится, кнопка «Купить на сайте бренда» откроет его страницу этой вещи, а выбранный размер и метка Планки придут в ссылке:<br><code id="url"></code></div>
+  </div>
+</main>
+<script src="data/brands.js?v=4"></script>
+<script>
+const P = new URLSearchParams(location.search), B = window.PLANKA_BRANDS || [], I = window.PLANKA_ITEMS || [];
+const it = I.find((x) => x.brand === P.get("brand") && x.name === P.get("name")) || I[0];
+const b = B.find((x) => x.id === it.brand) || {};
+document.title = it.name + " — " + b.name;
+document.getElementById("img").src = it.img;
+document.getElementById("brand").textContent = b.name;
+document.getElementById("name").textContent = it.name;
+document.getElementById("price").textContent = new Intl.NumberFormat("ru-RU").format(it.price) + " ₽";
+document.getElementById("size").textContent = "Размер: " + (P.get("size") || "—");
+document.getElementById("url").textContent = "https://сайт-бренда.ru/" + it.name.toLowerCase().replace(/\s+/g, "-") + "?size=" + (P.get("size") || "") + "&utm_source=planka&utm_medium=catalog";
+</script>
+</body>
+</html>

@@ -12,7 +12,9 @@
   const yw = (n) => { const a = n % 10, b = n % 100; return n + (a === 1 && b !== 11 ? " год" : a >= 2 && a <= 4 && (b < 12 || b > 14) ? " года" : " лет"); };
   const safeUrl = (u) => (/^https:\/\//.test(u || "") ? u : "");
   const link = (b) => `brand.html?id=${encodeURIComponent(b.id)}`;
-  const ITEMS = (window.PLANKA_ITEMS || []).map((it, i) => ({ ...it, order: i, b: B.find((x) => x.id === it.brand) })).filter((it) => it.b);
+  const TR = { а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "e", ж: "zh", з: "z", и: "i", й: "y", к: "k", л: "l", м: "m", н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "h", ц: "c", ч: "ch", ш: "sh", щ: "sch", ы: "y", э: "e", ю: "yu", я: "ya" };
+  const slug = (t) => [...t.toLowerCase()].map((c) => TR[c] ?? (/[a-z0-9]/.test(c) ? c : "-")).join("").replace(/-+/g, "-").replace(/^-|-$/g, "");
+  const ITEMS = (window.PLANKA_ITEMS || []).map((it, i) => ({ ...it, order: i, id: it.id || it.brand + "-" + slug(it.name), b: B.find((x) => x.id === it.brand) })).filter((it) => it.b);
   // цена бренда для планки — его самая доступная вещь в каталоге
   B.forEach((b) => { const own = ITEMS.filter((it) => it.b === b); if (own.length) b.price = Math.min(...own.map((it) => it.price)); });
   const JB = B.slice(0, 6);
@@ -22,15 +24,18 @@
     const x = new URL(u); x.searchParams.set("utm_source", "planka"); x.searchParams.set("utm_medium", "catalog"); return x.toString();
   };
   const arrowS = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
-  const itemCard = (it) => {
-    const ext = !!(safeUrl(it.url) || safeUrl(it.b.site));
-    return `<a class="item" href="${esc(itemUrl(it))}"${ext ? ' target="_blank" rel="noopener"' : ""}>
+  const itemCard = (it) => `<a class="item" href="catalog.html?item=${encodeURIComponent(it.id)}" data-item="${esc(it.id)}">
       <div class="ph"><img src="${esc(it.img)}" width="800" height="1000" alt="${esc(it.name)}" loading="lazy">${it.b.example ? '<span class="ex-tag">Пример</span>' : ""}</div>
       <span class="br"><b>${esc(it.b.name)}</b><span>оценка ${num(it.b.rating)}</span></span>
       <h3>${esc(it.name)}</h3>
       <span class="pr">${rub.format(it.price)}&nbsp;₽</span>
-      <span class="go">${ext ? "В магазин бренда" : "К бренду"} ${arrowS}</span>
     </a>`;
+  // куда ведёт «Купить на сайте бренда»: ссылка на вещь с размером и меткой Планки; у примеров — демо-магазин
+  const buyUrl = (it, size) => {
+    const u = safeUrl(it.url) || safeUrl(it.b.site);
+    if (!u) return `demo-shop.html?brand=${encodeURIComponent(it.brand)}&name=${encodeURIComponent(it.name)}&size=${encodeURIComponent(size)}`;
+    const x = new URL(u); if (size && size !== "Один размер") x.searchParams.set("size", size);
+    x.searchParams.set("utm_source", "planka"); x.searchParams.set("utm_medium", "catalog"); return x.toString();
   };
   const arrow = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
 
@@ -156,45 +161,174 @@
     render();
   }
 
-  /* ===== каталог вещей: для кого, категория, сортировка, поиск ===== */
-  const shop = $("#shop");
-  if (shop) {
-    const P = new URLSearchParams(location.search);
-    const st = { g: P.get("g") || "", cat: P.get("cat") || "Все", sort: P.get("sort") || "new", q: P.get("q") || "" };
-    const q = $("#q"), sort = $("#sort"), cats = $("#cats"), empty = $("#empty"), count = $("#count");
-    q.value = st.q; sort.value = st.sort;
+  /* ===== каталог вещей по шагам: для кого → категория → тип → список с фильтрами ===== */
+  const steps = $("#steps");
+  let renderShop = () => {};
+  if (steps) {
+    const listing = $("#listing"), crumbs = $("#crumbs"), shop = $("#shop"), subsBox = $("#subs"), sort = $("#sort"),
+      empty = $("#empty"), count = $("#count"), filters = $("#filters"), fBtn = $("#fBtn"), fN = $("#fN");
+    const G = { "ж": "Женское", "м": "Мужское" };
+    const st = {};
+    const read = () => {
+      const P = new URLSearchParams(location.search);
+      Object.assign(st, { g: P.get("g") || "", cat: P.get("cat") || "", sub: P.get("sub") || "", sort: P.get("sort") || "new",
+        pmin: P.get("pmin") || "", pmax: P.get("pmax") || "", yrs: P.get("yrs") || "", rate: P.get("rate") || "", brands: (P.get("brands") || "").split(",").filter(Boolean) });
+    };
+    const write = (push) => {
+      const u = new URLSearchParams();
+      ["g", "cat", "sub"].forEach((k) => st[k] && u.set(k, st[k]));
+      if (st.sort !== "new") u.set("sort", st.sort);
+      ["pmin", "pmax", "yrs", "rate"].forEach((k) => st[k] && u.set(k, st[k]));
+      if (st.brands.length) u.set("brands", st.brands.join(","));
+      const url = location.pathname + (u.toString() ? "?" + u : "");
+      push ? history.pushState(null, "", url) : history.replaceState(null, "", url);
+    };
+    const go = (patch) => { Object.assign(st, patch); write(true); renderShop(); scrollTo({ top: 0 }); };
     const forG = (it) => !st.g || it.g === st.g || it.g === "у";
+    const tile = (href, img, title, n) => `<a class="tile" href="${href}"><span class="ph"><img src="${esc(img)}" width="800" height="1000" alt="" loading="lazy"></span><span class="tn">${esc(title)}</span><span class="n">${n}</span></a>`;
+    const q = (o) => "catalog.html?" + new URLSearchParams(Object.fromEntries(Object.entries(o).filter(([, v]) => v)));
+    const crumb = () => {
+      const parts = [`<a href="catalog.html">Каталог</a>`];
+      if (st.g || st.cat) parts.push(`<a href="${q({ g: st.g })}">${st.g ? G[st.g] : "Всё"}</a>`);
+      if (st.cat) parts.push(`<a href="${q({ g: st.g, cat: st.cat })}">${esc(st.cat)}</a>`);
+      if (st.sub) parts.push(`<span>${esc(st.sub)}</span>`);
+      crumbs.innerHTML = parts.join('<i aria-hidden="true">/</i>');
+    };
+    const pick = (list) => {
+      const lo = +st.pmin || 0, hi = +st.pmax || Infinity;
+      return list.filter((it) => it.price >= lo && it.price <= hi && (!st.yrs || it.b.years >= +st.yrs) && (!st.rate || it.b.rating >= +st.rate) && (!st.brands.length || st.brands.includes(it.brand)));
+    };
     const sorters = {
       new: (a, b) => a.order - b.order,
       rating: (a, b) => b.b.rating - a.b.rating || a.price - b.price,
+      years: (a, b) => b.b.years - a.b.years || a.price - b.price,
       cheap: (a, b) => a.price - b.price,
       dear: (a, b) => b.price - a.price,
     };
-    const render = () => {
+    renderShop = () => {
+      crumb();
       const pool = ITEMS.filter(forG);
-      const names = ["Все", ...new Set(ITEMS.map((it) => it.cat))];
-      if (!names.includes(st.cat)) st.cat = "Все";
-      cats.innerHTML = names.map((c) => {
-        const n = c === "Все" ? pool.length : pool.filter((it) => it.cat === c).length;
-        return `<button type="button" data-c="${esc(c)}" aria-pressed="${c === st.cat}"${n ? "" : " disabled"}>${esc(c)}<span>${n}</span></button>`;
-      }).join("");
-      const s = st.q.trim().toLowerCase();
-      const list = pool.filter((it) => (st.cat === "Все" || it.cat === st.cat) && (!s || (it.name + " " + it.cat + " " + it.b.name + " " + it.b.city).toLowerCase().includes(s)))
-        .sort(sorters[st.sort] || sorters.new);
+      // шаг 1: для кого
+      if (!st.g && !st.cat) {
+        listing.hidden = true;
+        const pic = (g) => (ITEMS.find((it) => it.g === g) || ITEMS[0]).img;
+        steps.innerHTML = `<h1 class="step-h">Каталог</h1><p class="step-sub">Для кого смотрим?</p>
+          <div class="tiles two">${tile(q({ g: "ж" }), "img/p-coat-robe.jpg", "Женское", ITEMS.filter((it) => it.g !== "м").length)}${tile(q({ g: "м" }), "img/p-suit-blue.jpg", "Мужское", ITEMS.filter((it) => it.g !== "ж").length)}</div>
+          <p class="step-all"><a class="link" href="${q({ cat: "", g: "", sub: "" })}&all=1" data-all>Показать всё подряд</a></p>`;
+        $("[data-all]", steps).addEventListener("click", (e) => { e.preventDefault(); go({ cat: "", g: "", sub: "", all: 1 }); });
+        if (!st.all) return;
+      }
+      // шаг 2: категория
+      if (!st.cat && !st.all) {
+        listing.hidden = true;
+        const cats = {};
+        pool.forEach((it) => (cats[it.cat] ||= []).push(it));
+        steps.innerHTML = `<h1 class="step-h">${G[st.g] || "Всё"}</h1><p class="step-sub">Что ищете?</p><div class="tiles">` +
+          Object.entries(cats).sort((a, b) => b[1].length - a[1].length).map(([c, list]) => tile(q({ g: st.g, cat: c }), list[0].img, c, list.length)).join("") + "</div>";
+        return;
+      }
+      const inCat = pool.filter((it) => !st.cat || it.cat === st.cat);
+      const subs = [...new Set(inCat.map((it) => it.sub))];
+      // шаг 3: тип внутри категории (если типов больше одного и тип не выбран)
+      if (st.cat && subs.length > 1 && !st.sub && !st.whole) {
+        listing.hidden = true;
+        steps.innerHTML = `<h1 class="step-h">${esc(st.cat)}</h1><p class="step-sub">${G[st.g] ? G[st.g] + ". " : ""}Какой тип?</p><div class="tiles">` +
+          subs.map((sb) => { const l = inCat.filter((it) => it.sub === sb); return tile(q({ g: st.g, cat: st.cat, sub: sb }), l[0].img, sb, l.length); }).join("") +
+          tile(q({ g: st.g, cat: st.cat, sub: "Всё" }), inCat[0].img, "Всё в разделе", inCat.length) + "</div>";
+        return;
+      }
+      // шаг 4: список с фильтрами и сортировкой
+      steps.innerHTML = "";
+      listing.hidden = false;
+      const base = inCat.filter((it) => !st.sub || st.sub === "Всё" || it.sub === st.sub);
+      $("#lh").textContent = st.sub && st.sub !== "Всё" ? st.sub : st.cat || "Всё подряд";
+      subsBox.innerHTML = subs.length > 1 ? ["Всё", ...subs].map((sb) => `<button type="button" data-s="${esc(sb)}" aria-pressed="${(st.sub || "Всё") === sb}">${esc(sb)}<span>${sb === "Всё" ? inCat.length : inCat.filter((it) => it.sub === sb).length}</span></button>`).join("") : "";
+      const brandsHere = [...new Map(base.map((it) => [it.brand, it.b])).values()].sort((a, b) => a.name.localeCompare(b.name, "ru"));
+      $("#fBrands").innerHTML = brandsHere.map((b) => `<label><input type="checkbox" value="${esc(b.id)}"${st.brands.includes(b.id) ? " checked" : ""}>${esc(b.name)}</label>`).join("");
+      const prices = base.map((it) => it.price);
+      $("#pmin").placeholder = "от " + rub.format(Math.min(...prices)); $("#pmax").placeholder = "до " + rub.format(Math.max(...prices));
+      $("#pmin").value = st.pmin; $("#pmax").value = st.pmax; sort.value = st.sort;
+      $$(".f-opts").forEach((box) => $$("button", box).forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === st[box.dataset.f]))));
+      const list = pick(base).sort(sorters[st.sort] || sorters.new);
       shop.innerHTML = list.map(itemCard).join("");
       empty.hidden = list.length > 0;
-      count.textContent = list.length + " " + (list.length % 10 === 1 && list.length % 100 !== 11 ? "вещь" : [2, 3, 4].includes(list.length % 10) && ![12, 13, 14].includes(list.length % 100) ? "вещи" : "вещей");
-      $$("#gender button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.g === st.g)));
-      // состояние в адресе: ссылкой на «женские джинсы, сначала дешевле» можно поделиться
-      const u = new URLSearchParams();
-      if (st.g) u.set("g", st.g); if (st.cat !== "Все") u.set("cat", st.cat); if (st.sort !== "new") u.set("sort", st.sort); if (st.q) u.set("q", st.q);
-      history.replaceState(null, "", location.pathname + (u.toString() ? "?" + u : ""));
+      const w = (n) => n % 10 === 1 && n % 100 !== 11 ? "вещь" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "вещи" : "вещей";
+      count.textContent = list.length + " " + w(list.length);
+      $("#fShow").textContent = `Показать ${list.length} ${w(list.length)}`;
+      const nf = ["pmin", "pmax", "yrs", "rate"].filter((k) => st[k]).length + (st.brands.length ? 1 : 0);
+      fN.textContent = nf ? `· ${nf}` : "";
     };
-    cats.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b && !b.disabled) { st.cat = b.dataset.c; render(); } });
-    $("#gender").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { st.g = b.dataset.g; render(); } });
-    sort.addEventListener("change", () => { st.sort = sort.value; render(); });
-    q.addEventListener("input", () => { st.q = q.value; render(); });
-    render();
+    // события списка
+    subsBox.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) go({ sub: b.dataset.s }); });
+    sort.addEventListener("change", () => { st.sort = sort.value; write(); renderShop(); });
+    const num2 = (v) => (v && +v > 0 ? String(Math.round(+v)) : "");
+    ["pmin", "pmax"].forEach((id) => $("#" + id).addEventListener("input", (e) => { st[id] = num2(e.target.value); write(); renderShop(); }));
+    $$(".f-opts").forEach((box) => box.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { st[box.dataset.f] = b.dataset.v; write(); renderShop(); } }));
+    $("#fBrands").addEventListener("change", () => { st.brands = $$("#fBrands input:checked").map((i) => i.value); write(); renderShop(); });
+    const reset = () => { Object.assign(st, { pmin: "", pmax: "", yrs: "", rate: "", brands: [] }); write(); renderShop(); };
+    $("#fReset").addEventListener("click", reset); $("#emptyReset").addEventListener("click", reset);
+    // фильтры на телефоне — выезжающая панель
+    const openF = (on) => { filters.classList.toggle("open", on); fBtn.setAttribute("aria-expanded", String(on)); document.body.classList.toggle("lock", on && phone()); };
+    fBtn.addEventListener("click", () => openF(!filters.classList.contains("open")));
+    $("#fClose").addEventListener("click", () => openF(false));
+    $("#fShow").addEventListener("click", () => openF(false));
+    // шаги — обычные ссылки; перехватываем, чтобы не перезагружать страницу, а «Назад» в браузере работало
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest("a[href^='catalog.html']");
+      if (!a || e.metaKey || e.ctrlKey || a.dataset.item || a.hasAttribute("data-all")) return;
+      e.preventDefault(); history.pushState(null, "", a.getAttribute("href")); read(); st.all = 0; st.whole = 0; renderShop(); scrollTo({ top: 0 });
+    });
+    addEventListener("popstate", () => { read(); renderShop(); });
+    read(); if (new URLSearchParams(location.search).get("all")) st.all = 1; renderShop();
+  }
+
+  /* ===== карточка вещи: окно на компьютере, шторка на телефоне ===== */
+  const pd = $("#pd");
+  const openItem = (it, push) => {
+    if (!pd || !it) return;
+    const sizes = it.sizes || ["Один размер"], one = sizes.length === 1;
+    pd.innerHTML = `<div class="pd-in">
+      <button type="button" class="pd-x" aria-label="Закрыть"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
+      <figure class="pd-ph"><img src="${esc(it.img)}" width="800" height="1000" alt="${esc(it.name)}">${it.b.example ? '<span class="ex-tag">Пример</span>' : ""}</figure>
+      <div class="pd-info">
+        <a class="pd-brand" href="${link(it.b)}">${esc(it.b.name)}</a>
+        <h2 id="pd-name">${esc(it.name)}</h2>
+        <p class="pd-price">${rub.format(it.price)}&nbsp;₽</p>
+        <p class="pd-about">${esc(it.about || "")}</p>
+        <fieldset class="pd-sizes"><legend>Размер</legend>${sizes.map((z) => `<label><input type="radio" name="size" value="${esc(z)}"${one ? " checked" : ""}><span>${esc(z)}</span></label>`).join("")}</fieldset>
+        <p class="pd-hint" role="status"></p>
+        <a class="btn pd-buy" href="${esc(buyUrl(it, one ? sizes[0] : ""))}">Купить на сайте бренда ${arrow}</a>
+        <dl class="pd-facts">
+          <div><dt>Состав</dt><dd>${esc(it.fabric || "—")}</dd></div>
+          <div><dt>Бренд</dt><dd>${esc(it.b.city)}, на рынке ${yw(it.b.years)}, оценка ${num(it.b.rating)} по ${rub.format(it.b.reviews)} отзывам</dd></div>
+        </dl>
+        <p class="note">Оплата, доставка и возврат — на сайте бренда, по его правилам.</p>
+      </div></div>`;
+    const buy = $(".pd-buy", pd), hint = $(".pd-hint", pd);
+    $$("input[name=size]", pd).forEach((r) => r.addEventListener("change", () => { buy.href = buyUrl(it, r.value); hint.textContent = ""; }));
+    buy.addEventListener("click", (e) => {
+      const ch = $("input[name=size]:checked", pd);
+      if (!ch) { e.preventDefault(); hint.textContent = "Выберите размер"; $("input[name=size]", pd).focus(); }
+    });
+    $(".pd-x", pd).addEventListener("click", () => pd.close());
+    if (push) { const u = new URL(location.href); u.searchParams.set("item", it.id); history.pushState({ item: it.id }, "", u); }
+    if (!pd.open) pd.showModal();
+    document.body.classList.add("lock");
+  };
+  if (pd) {
+    pd.addEventListener("close", () => {
+      document.body.classList.remove("lock");
+      const u = new URL(location.href);
+      if (u.searchParams.has("item")) { u.searchParams.delete("item"); history.replaceState(null, "", u); }
+    });
+    pd.addEventListener("click", (e) => { if (e.target === pd) pd.close(); });
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest("a[data-item]");
+      if (!a || e.metaKey || e.ctrlKey) return;
+      e.preventDefault(); openItem(ITEMS.find((it) => it.id === a.dataset.item), true);
+    });
+    const deep = new URLSearchParams(location.search).get("item");
+    if (deep) openItem(ITEMS.find((it) => it.id === deep), false);
   }
 
   /* ===== главная: «что ищете» — категории с примером вещи ===== */

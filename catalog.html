@@ -17,35 +17,47 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=TikTok+Sans:wdth,wght@75..150,300..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="planka.css?v=9">
+<link rel="stylesheet" href="planka.css?v=11">
 </head>
 <body>
 <main class="page">
   <div class="topbar"><a href="index.html" aria-label="Планка, на главную"><b class="disp">Планка</b></a><nav aria-label="Разделы"><a href="catalog.html" aria-current="page">Каталог</a><a href="all-brands.html">Бренды</a><a href="brands.html">Брендам</a></nav></div>
-  <div class="shop-head">
-    <h1>Каталог <span id="count" class="cnt"></span></h1>
-    <label class="search"><span class="vh">Поиск</span><input type="search" id="q" placeholder="Джинсы, пальто, название бренда" autocomplete="off"></label>
-  </div>
-  <div class="shop-tools">
-    <div class="seg" id="gender" role="group" aria-label="Для кого">
-      <button type="button" data-g="" aria-pressed="true">Все</button>
-      <button type="button" data-g="ж" aria-pressed="false">Женское</button>
-      <button type="button" data-g="м" aria-pressed="false">Мужское</button>
+  <nav class="crumbs" id="crumbs" aria-label="Где вы"></nav>
+  <section id="steps" aria-live="polite"></section>
+  <section id="listing" hidden>
+    <div class="shop-head"><h1 id="lh">Каталог</h1><span class="cnt" id="count"></span></div>
+    <div class="chips subs" id="subs" role="group" aria-label="Тип"></div>
+    <div class="shop-tools">
+      <button type="button" class="fbtn" id="fBtn" aria-controls="filters" aria-expanded="false">Фильтры <span id="fN"></span></button>
+      <label class="sort">Сортировка
+        <select id="sort">
+          <option value="new">Сначала новые</option>
+          <option value="rating">По оценке бренда</option>
+          <option value="years">По стажу бренда</option>
+          <option value="cheap">Сначала дешевле</option>
+          <option value="dear">Сначала дороже</option>
+        </select>
+      </label>
     </div>
-    <label class="sort">Сортировка
-      <select id="sort">
-        <option value="new">Сначала новые</option>
-        <option value="rating">По оценке бренда</option>
-        <option value="cheap">Сначала дешевле</option>
-        <option value="dear">Сначала дороже</option>
-      </select>
-    </label>
-  </div>
-  <div class="chips" id="cats" role="group" aria-label="Категории"></div>
-  <div class="items-grid" id="shop"></div>
-  <p class="empty" id="empty" hidden>Таких вещей пока нет. Попробуйте другую категорию или уберите поиск.</p>
-  <p class="note" style="margin-top:40px">Вещи, цены и бренды здесь пока примеры. Нажмите на вещь, и откроется магазин бренда.</p>
+    <div class="list-wrap">
+      <aside class="filters" id="filters" aria-label="Фильтры">
+        <div class="f-top"><b>Фильтры</b><button type="button" class="f-close" id="fClose" aria-label="Закрыть фильтры"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg></button></div>
+        <fieldset><legend>Цена, ₽</legend><div class="f-price"><label><span class="vh">от</span><input type="number" id="pmin" inputmode="numeric" min="0" step="100" placeholder="от"></label><label><span class="vh">до</span><input type="number" id="pmax" inputmode="numeric" min="0" step="100" placeholder="до"></label></div></fieldset>
+        <fieldset><legend>Бренд на рынке</legend><div class="f-opts" data-f="yrs"><button type="button" data-v="">Любой стаж</button><button type="button" data-v="3">от 3 лет</button><button type="button" data-v="5">от 5 лет</button></div></fieldset>
+        <fieldset><legend>Оценка бренда</legend><div class="f-opts" data-f="rate"><button type="button" data-v="">Любая</button><button type="button" data-v="4.7">от 4,7</button><button type="button" data-v="4.85">от 4,85</button></div></fieldset>
+        <fieldset><legend>Бренды</legend><div class="f-brands" id="fBrands"></div></fieldset>
+        <div class="f-act"><button type="button" class="btn" id="fShow">Показать</button><button type="button" class="link" id="fReset">Сбросить</button></div>
+      </aside>
+      <div>
+        <div class="items-grid" id="shop"></div>
+        <p class="empty" id="empty" hidden>Под эти фильтры ничего нет. <button type="button" class="link" id="emptyReset">Сбросить фильтры</button></p>
+      </div>
+    </div>
+  </section>
+  <p class="note" style="margin-top:56px">Вещи, цены и бренды здесь пока примеры.</p>
 </main>
+
+<dialog class="pd" id="pd" aria-labelledby="pd-name"></dialog>
 <footer class="foot">
   <span>Небольшие марки одежды</span>
   <nav aria-label="Подвал"><a href="all-brands.html">Бренды</a><a href="brands.html">Брендам</a><a href="#" data-cfg="tgChannel" data-soon="Канал запустим вместе с первыми брендами.">Telegram</a></nav>
@@ -53,7 +65,7 @@
 </footer>
 
 <script src="config.js?v=2"></script>
-<script src="data/brands.js?v=3"></script>
-<script src="app.js?v=7"></script>
+<script src="data/brands.js?v=4"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>
